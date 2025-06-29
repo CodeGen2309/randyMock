@@ -4,7 +4,11 @@ import sqlite3 from 'sqlite3'
 let app = express()
 let port = 3000
 let db = new sqlite3.Database(
-  './mockdb.sqlite', sqlite3.OPEN_READWRITE, err => logger(err, 'connected to db')
+  './mockdb.sqlite', sqlite3.OPEN_READWRITE, err => {
+    if (err) { return console.log(err) }
+    console.log('Connected to DB');
+    
+  }
 )
 
 app.get('/', (req, res) => {
