@@ -1,26 +1,34 @@
 import express from 'express'
-import sqlite3 from 'sqlite3'
+import dbinter from './dbinter.js'
+import apirator from './apirator.js'
+
 
 let app = express()
 let port = 3000
-let db = new sqlite3.Database(
-  './mockdb.sqlite', sqlite3.OPEN_READWRITE, err => {
-    if (err) { return console.log(err) }
-    console.log('Connected to DB');
-    
-  }
-)
+let db = await new dbinter().setConnection('./mockdb.sqlite')
+let neiro = new apirator()
+
+
 
 app.get('/', (req, res) => {
+  res.send('Hello World!')
+})
+
+
+app.get('/get-promts/:locale', async (req, res) => {
   res.set('content-type', 'application/json')
-  let sql = 'SELECT * FROM promts'
+  let test = await db.getPromts(req.params.locale)
+  console.log(test.start_promt);
+  res.send(test)
+})
 
-  db.all(sql, [], (err, data) => {
-    if (err) { return console.log(err) }
 
-    let content = JSON.stringify(data)
-    res.send(content)
-  })
+app.get('/get-random-film/:locale', async (req, res) => {
+  res.set('content-type', 'application/json')
+  let promts = await db.getPromts(req.params.locale)
+  let data = await neiro.getFilm(promts.start_promt)
+  console.log(data);
+  res.send(data)
 })
 
 
@@ -28,6 +36,5 @@ app.get('/', (req, res) => {
 
 app.listen(port, (err) => {
   if (err) { return console.log(err) }
-
   console.log(`Example app listening on port ${port}`)
 })
