@@ -1,11 +1,12 @@
 import creds from './apikey.js'
 
 export default class {
-  async getFilm (message) {
-    let hook = creds.hook
-    let res = await fetch(hook, {
+  async getFilm (locale, message) {
+    let hook = creds.test
+    let link = `${hook}?locale=${locale}`
+    let res = await fetch(link, {
       method: 'POST',
-      body: JSON.stringify(message)
+      body: message
     })
 
     return res.json()
