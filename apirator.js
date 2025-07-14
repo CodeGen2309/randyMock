@@ -1,17 +1,14 @@
+import { json } from 'express'
 import creds from './apikey.js'
 
-export default class {
-  async getFilm (locale, message) {
-    let hook = creds.test
-    let link = `${hook}?locale=${locale}`
+export default {
+  'sendPromt': async function (ip, message) {
+    let link = creds.hook
     let res = await fetch(link, {
       method: 'POST',
-      body: message
+      body: JSON.stringify({ ip, message })
     })
 
     return res.json()
   }
-
-  async sendMessage () {}
-  async getAnother () {}
 }

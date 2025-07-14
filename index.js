@@ -1,4 +1,6 @@
 import express from 'express'
+import bodyParser from 'body-parser'
+
 import cors from 'cors'
 import dbinter from './dbinter.js'
 import apirator from './apirator.js'
@@ -7,27 +9,13 @@ import apirator from './apirator.js'
 let app = express()
 let port = 3000
 let db = await new dbinter().setConnection('./mockdb.sqlite')
-let neiro = new apirator()
 
 
 app.use(cors())
+app.use(bodyParser.json())
+
 app.get('/', (req, res) => {
   res.send('Hello World!')
-})
-
-
-// for test
-app.get('/check-film/:locale', async (req, res) => {
-  let locale, content,
-  data
-
-  res.set('content-type', 'application/json')
-  locale = req.params.locale
-  data = await db.getFilmsByLocale(locale)
-
-
-  console.log(data);
-  res.send(data)
 })
 
 
@@ -38,7 +26,6 @@ app.get('/get-promts/:locale', async (req, res) => {
   locale = req.params.locale
   data   = await db.getPromts(locale)
 
-  console.log(data);
   res.send(data)
 })
 
@@ -51,8 +38,7 @@ app.get('/get-random-film/:locale', async (req, res) => {
   promts = await db.getPromts(locale)
 
   // { locale, title, poster, desc }
-  console.log('PROMT SENDED');
-  data   = await neiro.getFilm(locale, promts.start_promt)
+  data   = await apirator.getFilm(promts.start_promt)
 
   saved  = await db.saveFilm(
     locale, data.title, data.poster, data.desc
@@ -63,14 +49,23 @@ app.get('/get-random-film/:locale', async (req, res) => {
 })
 
 
-app.get('/send-promt/:text', async (req, res) => {
-  let text, data
+// TODO: Докрутить сценарии если нету боди и тескта
+app.post('/send-promt', async (req, res) => {
+  let promt, data, ip
+
+
+  try { promt = req.body.promt } 
+  catch (e) { return res.send('HAVE NO PROMT') }
+
+  console.log("SEND PROMT")
 
   res.set('content-type', 'application/json')
-  text = req.params.text
-  data = await neiro.getFilm(text)
+  ip = req.ip
 
-  console.log(data);
+  promt = req.body.promt
+  data = await apirator.sendPromt(ip, promt)
+
+  console.log(data)
   res.send(data)
 })
 
@@ -87,7 +82,7 @@ app.get('/get-cached-film/:locale', async (req, res) => {
     randy = Math.floor(Math.random() * data.count)
   }
 
-
+  
   res.send(data.items[randy])
 })
 
