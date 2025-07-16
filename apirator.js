@@ -2,13 +2,39 @@ import { json } from 'express'
 import creds from './apikey.js'
 
 export default {
-  'sendPromt': async function (ip, message) {
-    let link = creds.hook
-    let res = await fetch(link, {
+  async sendPromt (ip, message) {
+    let link, req, res
+
+    link = creds.hook
+    req = await fetch(link, {
       method: 'POST',
       body: JSON.stringify({ ip, message })
     })
 
-    return res.json()
+    res = await req.json().then(raw => {
+      let clean = raw[0]['output']
+        .replaceAll('\n', '')
+        .replaceAll('```', '')
+        .replaceAll("'", '"')
+      .replaceAll('json', '')
+
+      let parsed = JSON.parse(clean)
+      return parsed
+    })
+
+    return res
+  },
+
+
+  parseResponse (data) {
+    let raw, formatted
+
+    console.log(data);
+    
+
+    raw = data.replace('```', '').replace('json', '')
+    formatted = JSON.parse(raw)
+
+    return(formatted)    
   }
 }

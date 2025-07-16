@@ -30,29 +30,9 @@ app.get('/get-promts/:locale', async (req, res) => {
 })
 
 
-app.get('/get-random-film/:locale', async (req, res) => {
-  let locale, promts, data, saved
-
-  res.set('content-type', 'application/json')
-  locale = req.params.locale
-  promts = await db.getPromts(locale)
-
-  // { locale, title, poster, desc }
-  data   = await apirator.getFilm(promts.start_promt)
-
-  saved  = await db.saveFilm(
-    locale, data.title, data.poster, data.desc
-  )
-
-  console.log(data);
-  res.send(data)
-})
-
-
-// TODO: Докрутить сценарии если нету боди и тескта
+// TODO: Докрутить сценарии если нету боди и текcта
 app.post('/send-promt', async (req, res) => {
   let promt, data, ip
-
 
   try { promt = req.body.promt } 
   catch (e) { return res.send('HAVE NO PROMT') }
@@ -77,7 +57,8 @@ app.get('/get-cached-film/:locale', async (req, res) => {
   locale = req.params.locale
   data   = await db.getFilmsByLocale(locale)
 
-  randy = false
+  randy = { title: 'NO FILMS', desc: '', poster: '#' }
+  
   if (data.count > 0) { 
     randy = Math.floor(Math.random() * data.count)
   }
@@ -86,6 +67,22 @@ app.get('/get-cached-film/:locale', async (req, res) => {
   res.send(data.items[randy])
 })
 
+
+app.post('/save-film/', async (req, res) => {
+  let test, body, status
+  
+  try { test = req.body.title } 
+  catch (e) { return res.send('HAVE NO FILM DATA') }
+
+  body = req.body
+  status = await db.saveFilm(
+    body.locale, body.title, body.poster, body.desc
+  )
+
+
+  res.set('content-type', 'application/json')
+  res.send(status)
+})
 
 
 
