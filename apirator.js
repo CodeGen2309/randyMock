@@ -1,4 +1,3 @@
-import { json } from 'express'
 import creds from './apikey.js'
 
 export default {
@@ -11,30 +10,17 @@ export default {
       body: JSON.stringify({ ip, message })
     })
 
-    res = await req.json().then(raw => {
-      let clean = raw[0]['output']
-        .replaceAll('\n', '')
-        .replaceAll('```', '')
-        .replaceAll("'", '"')
-      .replaceAll('json', '')
-
-      let parsed = JSON.parse(clean)
-      return parsed
-    })
-
-    return res
+    return await req.json()
   },
 
 
   parseResponse (data) {
-    let raw, formatted
+    let clean = data[0]['output']
+      .replaceAll('\n', '')
+      .replaceAll('```', '')
+      .replaceAll("'", '"')
+    .replaceAll('json', '')
 
-    console.log(data);
-    
-
-    raw = data.replace('```', '').replace('json', '')
-    formatted = JSON.parse(raw)
-
-    return(formatted)    
+    return JSON.parse(clean)
   }
 }
