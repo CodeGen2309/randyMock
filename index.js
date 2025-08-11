@@ -1,3 +1,5 @@
+import { Telegraf, Markup } from 'telegraf'
+
 import express from 'express'
 import bodyParser from 'body-parser'
 
@@ -5,7 +7,28 @@ import cors from 'cors'
 import dbinter from './dbinter.js'
 import apirator from './apirator.js'
 
+// TG BOT ----------------------------------------------------------
 
+let token = '8326567347:AAHUoulUtbwwf9DHcu1gKvVxnWGrw3sX5Uc'
+let bot = new Telegraf(token)
+let botUrl = 'https://jrjcdr.ru/'
+
+bot.command('start', (ctx) => {
+  ctx.reply(
+    'Привет! Пришли мне любой фильм и я сделаю его вместо тебя',
+    Markup.keyboard([
+        Markup.button.webApp(' Открыть апку', botUrl)
+    ])
+  )
+
+})
+
+
+
+bot.launch()
+
+
+// EXPRESS SERVER ----------------------------------------------------------
 let app = express()
 let port = 3000
 let db = await new dbinter().setConnection('./mockdb.sqlite')
